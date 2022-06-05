@@ -252,7 +252,7 @@
         background-color: #fea500;
         content:'';
         position:absolute;
-
+z-index: 10000;
         border-radius: 10% 10% 50% 50% / 0% 0% 28% 28% ;
     
     }
@@ -301,21 +301,66 @@
         margin:0 auto;
     }
     </style>
+
+<style>
+        @import url("https://fonts.googleapis.com/css?family=Raleway:900&display=swap");
+
+
+#container {
+    position: absolute;
+    margin: auto;
+    width: 100vw;
+    height: 100vh;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    bottom: 0;
+color: #fea500;
+    filter: url(#threshold) blur(0.6px);
+}
+
+#text1,
+#text2 {
+    position: absolute;
+    width: 100%;
+    display: inline-block;
+
+    font-family: "Raleway", sans-serif;
+    font-size: 55pt;
+
+    text-align: center;
+
+    user-select: none;
+}
+#small-device{
+        display:none;
+}
+@media screen and (max-width:500px) {
+        #small-device{
+                display: block;
+        }
+        #large-device{
+                display:none;
+        }
+}
+    </style>
     <!-- Please typing your favorite word!-->
-    <div class="container-fluid">
+    
+    <div class="screen">
+        <div class="screen-left"><img src="./athena yellow.png" alt=""> </div>
+        <!-- <div class="screen-right">  <img src="./iste yelow.png" height="200px" alt=""></div> -->
+    </div>
+   
+    <div class="container-fluid"id='large-device' >
     
   
-        <div class="screen">
-            <div class="screen-left"><img src="./athena yellow.png" alt=""> </div>
-            <!-- <div class="screen-right">  <img src="./iste yelow.png" height="200px" alt=""></div> -->
-        </div>
-       
       
-        <div class="inner-container">
+        <!-- <div class="inner-container">
     
             
     
-        </div>
+        </div> -->
         <div id="ui">
             <div class="text">Athena '22</div>
             <div class="text">Athena '22</div>
@@ -346,10 +391,112 @@
             
           </div>
     </div>
+    <div class="container-fluid" id="small-device">
+        <div id="container">
+            <span id="text1"></span>
+            <span id="text2"></span>
+        </div>
+        
+        <svg id="filters">
+            <defs>
+                <filter id="threshold">
+                    <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0
+                          0 1 0 0 0
+                          0 0 1 0 0
+                          0 0 0 255 -140" />
+                </filter>
+            </defs>
+        </svg>
+     </div>
 <div class="footer">
     <a href="https://www.instagram.com/_athena22_/"> <i class="fa-brands fa-instagram"></i></a>
    <a href=""> <i class="fa-brands fa-linkedin-in"></i></a>
 
 </div>
+
+<script>
+        const elts = {
+    text1: document.getElementById("text1"),
+    text2: document.getElementById("text2")
+};
+
+const texts = [
+    "ISTE",
+    "TKMCE",
+    "Athena",
+    "22",
+   
+];
+
+const morphTime = 1;
+const cooldownTime = 0.25;
+
+let textIndex = texts.length - 1;
+let time = new Date();
+let morph = 0;
+let cooldown = cooldownTime;
+
+elts.text1.textContent = texts[textIndex % texts.length];
+elts.text2.textContent = texts[(textIndex + 1) % texts.length];
+
+function doMorph() {
+    morph -= cooldown;
+    cooldown = 0;
+
+    let fraction = morph / morphTime;
+
+    if (fraction > 1) {
+        cooldown = cooldownTime;
+        fraction = 1;
+    }
+
+    setMorph(fraction);
+}
+
+function setMorph(fraction) {
+    elts.text2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+    elts.text2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+
+    fraction = 1 - fraction;
+    elts.text1.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+    elts.text1.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+
+    elts.text1.textContent = texts[textIndex % texts.length];
+    elts.text2.textContent = texts[(textIndex + 1) % texts.length];
+}
+
+function doCooldown() {
+    morph = 0;
+
+    elts.text2.style.filter = "";
+    elts.text2.style.opacity = "100%";
+
+    elts.text1.style.filter = "";
+    elts.text1.style.opacity = "0%";
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    let newTime = new Date();
+    let shouldIncrementIndex = cooldown > 0;
+    let dt = (newTime - time) / 1000;
+    time = newTime;
+
+    cooldown -= dt;
+
+    if (cooldown <= 0) {
+        if (shouldIncrementIndex) {
+            textIndex++;
+        }
+
+        doMorph();
+    } else {
+        doCooldown();
+    }
+}
+
+animate();
+    </script>
 </body>
 </html>
